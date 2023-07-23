@@ -21,6 +21,7 @@ interface IFilterSelectorProps {
   onSelect?: (v: any, name?: string) => void
   onConfirm?: (v: any, name?: string) => void
   active?: boolean
+  onReset?: () => void
   // 是否在页面显示 变化时会同步外部value 和 内部选中value
 }
 
@@ -32,16 +33,26 @@ export default function FilterSelector({
   defaultValue,
   onSelect,
   onConfirm,
+  onReset,
   active
 }: IFilterSelectorProps) {
 
-  const [value, setValue] = usePropsValue({
-    value: propsValue,
-    defaultValue: defaultValue,
-    onChange: val => {
-      onConfirm?.(val, name)
-    },
-  })
+  // 如果用这个 value 从 真值 改为 假值 无法 同步
+  // const [value, setValue] = usePropsValue({
+  //   value: propsValue,
+  //   defaultValue: defaultValue,
+  //   onChange: val => {
+  //     onConfirm?.(val, name)
+  //   },
+  // })
+
+  const [value, setValue] = useState()
+
+  useEffect(() => {
+    if (propsValue !== value) {
+      setValue(propsValue)
+    }
+  }, [propsValue])
 
   const [innerValue, setInnerValue] = useState(value)
   const [childKeyMark, setChildKeyMark] = useState(0)
@@ -71,6 +82,11 @@ export default function FilterSelector({
 
   const handleConfirm = () => {
     setValue(innerValue)
+    onConfirm?.(innerValue)
+  }
+
+  const handleReset = () => {
+    onReset?.()
   }
 
   return (
@@ -81,7 +97,6 @@ export default function FilterSelector({
           value: innerValue,
           key: name + childKeyMark,
           [trigger]: (...arg: any[]) => {
-            console.log('onchange', arg[0])
             setInnerValue(arg[0])
             onSelect?.(arg[0], name)
             children.props[trigger]?.(...arg)
@@ -90,7 +105,7 @@ export default function FilterSelector({
       </div>
       <div className={`${clsPrefix}-footer`}>
         <Space justify="between" block>
-          <Button color="primary"fill="outline">
+          <Button color="primary"fill="outline" onClick={handleReset}>
             重置
           </Button>
           <Button color="primary" fill="solid" onClick={handleConfirm}>

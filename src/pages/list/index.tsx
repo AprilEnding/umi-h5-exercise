@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useParams, history } from 'umi'
 import { Tabs, Selector } from 'antd-mobile'
 import FiltersDropdown from '@/components/filters-dropdown'
-import FilterSelector from '@/components/filters-dropdown/filter-selector'
 
 export const options = [
   {
@@ -39,14 +38,8 @@ enum PageType {
 export default function List() {
   const { type: pageType } = useParams() as { type: PageType }
   const isSellPage = pageType === PageType.SELL
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
   const [count, setCount] = useState(1)
-
-
-  useEffect(() => {
-    console.log('show');
-
-  }, [show])
 
   const handleChangePage = (key: string) => {
     history.replace('/list/' + key)
@@ -58,19 +51,23 @@ export default function List() {
         <Tabs.Tab title='出售' key={PageType.SELL} />
         <Tabs.Tab title='出租' key={PageType.RENT} />
       </Tabs>
-      <FiltersDropdown>
+      <FiltersDropdown
+        onChange={(val) => {
+          console.log('value', val)
+        }}
+      >
         <FiltersDropdown.Item key="11" name="1" title="测试1">
           <Selector
             columns={3}
             options={options}
             multiple={true}
-          // onChange={(arr, extend) => console.log(arr, extend.items)}
           />
         </FiltersDropdown.Item>
         <FiltersDropdown.Item key="22" name="2" title="测试2">
-          <div>
-            测试2
-          </div>
+          <Selector
+            columns={3}
+            options={options}
+          />
         </FiltersDropdown.Item>
         <FiltersDropdown.Item key="33" name="3" title="测试3">
           <div>
@@ -78,7 +75,7 @@ export default function List() {
           </div>
         </FiltersDropdown.Item>
         {show ? (
-          <FiltersDropdown.Item key="44" name="4" title="测试4">
+          <FiltersDropdown.Item key="44" name="4" title="测试4" highlight>
             <div>
               测试4
             </div>
