@@ -44,6 +44,12 @@ export function getValueType(val: any) {
   return toString.call(val).replace(/(^\[object )|(\]$)/g, '')
 }
 
+
+/**
+ * todo
+ * 嵌套对象的判断？？？
+ */
+
 export function isEmpty(val: any) {
   // undefined null
   // number string boolear function object

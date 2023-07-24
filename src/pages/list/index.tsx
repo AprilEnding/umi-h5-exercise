@@ -1,34 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, history } from 'umi'
-import { Tabs, Selector } from 'antd-mobile'
+import { Tabs, Selector, Checkbox, Space, CascaderView } from 'antd-mobile'
 import FiltersDropdown from '@/components/filters-dropdown'
-
-export const options = [
-  {
-    label: '选项一',
-    value: '1',
-  },
-  {
-    label: '选项二',
-    value: '2',
-  },
-  {
-    label: '选项三',
-    value: '3',
-  },
-  {
-    label: '选项四',
-    value: '4',
-  },
-  {
-    label: '选项五',
-    value: '5',
-  },
-  {
-    label: '选项六',
-    value: '6',
-  },
-]
+import { CascaderViewOptions, options, reangeOptions } from './mock'
+import RangeSelector from '@/components/range-selector'
 
 enum PageType {
   SELL = 'sell',
@@ -56,26 +31,33 @@ export default function List() {
           console.log('value', val)
         }}
       >
-        <FiltersDropdown.Item key="11" name="1" title="测试1">
+        <FiltersDropdown.Item key="area" title="区域">
+          <CascaderView
+            options={CascaderViewOptions}
+            onChange={(val, extend) => {
+              console.log('onChange', val, extend)
+            }}
+          />
+        </FiltersDropdown.Item>
+        <FiltersDropdown.Item key="vegetable" title="蔬菜">
           <Selector
             columns={3}
             options={options}
-            multiple={true}
           />
         </FiltersDropdown.Item>
-        <FiltersDropdown.Item key="22" name="2" title="测试2">
-          <Selector
+        <FiltersDropdown.Item key="33" title="测试3">
+          <RangeSelector 
+            options={reangeOptions}
             columns={3}
-            options={options}
+            multiple
+            onChange={(v, extend) => {
+              console.log(v, extend);
+              
+            }}
           />
-        </FiltersDropdown.Item>
-        <FiltersDropdown.Item key="33" name="3" title="测试3">
-          <div>
-            测试3
-          </div>
         </FiltersDropdown.Item>
         {show ? (
-          <FiltersDropdown.Item key="44" name="4" title="测试4" highlight>
+          <FiltersDropdown.Item key="44" title="测试4">
             <div>
               测试4
             </div>
