@@ -47,10 +47,10 @@ export function getValueType(val: any) {
 
 /**
  * todo
- * 嵌套对象的判断？？？
+ * 支持更多类型？？
  */
 
-export function isEmpty(val: any) {
+export function isEmpty(val: any): boolean {
   // undefined null
   // number string boolear function object
   switch (typeof val) {
@@ -66,15 +66,24 @@ export function isEmpty(val: any) {
     }
     case 'object': {
       const objType = getValueType(val)
-      if (objType === 'Array' && val.length <= 0) {
-        return true
-      } else if (objType === 'Object') {
-        return Object.keys(val).length === 0
-      } else if (objType === 'Null') {
-        return true
-      } else {
-        return false
+      if (objType === 'Array') {
+        if (val.length <= 0) {
+          return true
+        } else {
+          return val.findIndex((item: any) => !isEmpty(item)) < 0
+        }
       }
+      if (objType === 'Object') {
+        const keys = Object.keys(val)
+        if (keys.length > 0) {
+          return keys.findIndex((item: string) => !isEmpty(val[item])) < 0
+        }
+        return true
+      }
+      if (objType === 'Null') {
+        return true
+      }
+      return false
     }
     case 'boolean':
     case 'function':

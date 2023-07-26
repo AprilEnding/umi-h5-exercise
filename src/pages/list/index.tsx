@@ -45,24 +45,23 @@ export default function List() {
             options={options}
           />
         </FiltersDropdown.Item>
-        <FiltersDropdown.Item key="33" title="测试3">
-          <RangeSelector 
+        <FiltersDropdown.Item key="price" title="价格">
+          <RangeSelector
             options={reangeOptions}
             columns={3}
             multiple
             onChange={(v, extend) => {
               console.log(v, extend);
-              
+
             }}
+            inputSuffix="元"
           />
         </FiltersDropdown.Item>
-        {show ? (
-          <FiltersDropdown.Item key="44" title="测试4">
-            <div>
-              测试4
-            </div>
-          </FiltersDropdown.Item>
-        ) : null}
+        <FiltersDropdown.Item key="more" title="更多">
+          <div>
+            测试4
+          </div>
+        </FiltersDropdown.Item>
       </FiltersDropdown>
       <button onClick={() => setShow(!show)}>show</button>
       <h2 onClick={() => setCount(count + 1)}>{count}</h2>
