@@ -26,6 +26,8 @@ export type IRangeSelectorProps = {
 
 const clsPrefix = 'range-selector'
 
+// todo: input number 一些浏览器不支持
+
 export default function RangeSelector(props: IRangeSelectorProps) {
 
   const {

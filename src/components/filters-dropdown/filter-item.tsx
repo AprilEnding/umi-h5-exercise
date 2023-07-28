@@ -3,7 +3,7 @@ import { Dropdown, DropdownItemProps } from 'antd-mobile'
 import './filter-item.less'
 
 interface IFilterItemProps extends DropdownItemProps {
-
+  contentClassName?: string
 }
 
 export default function FilterItem(props: IFilterItemProps) {

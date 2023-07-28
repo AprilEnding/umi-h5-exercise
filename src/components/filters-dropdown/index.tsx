@@ -13,6 +13,7 @@ import FilterItem from './filter-item'
 import FilterSelector from './filter-selector'
 import { FiltersValueContext } from './context'
 import useFiltersValue from './hooks/useFiltersValue'
+import classnames from 'classnames'
 
 interface IFiltersDropdownProps extends DropdownProps {
   children: React.ReactNode
@@ -76,21 +77,27 @@ export default function FiltersDropdown(props: IFiltersDropdownProps) {
           highlight: highlight,
           ...child.props,
           children: createElement(
-            FilterSelector,
+            'div',
             {
-              children: child.props.children as React.ReactElement,
-              name: name,
-              title: child.props.title,
-              value: value && value[name],
-              active: activeKey === child.key,
-              onConfirm: (value) => {
-                setValueByKey(name, value)
-                dropdownRef.current?.close()
-              },
-              onReset: () => {
-                resetValue([name])
-                dropdownRef.current?.close()
-              }
+              className: classnames('filter-dropdown-content', child.props.contentClassName),
+              children: createElement(
+                FilterSelector,
+                {
+                  children: child.props.children as React.ReactElement,
+                  name: name,
+                  title: child.props.title,
+                  value: value && value[name],
+                  active: activeKey === child.key,
+                  onConfirm: (value) => {
+                    setValueByKey(name, value)
+                    dropdownRef.current?.close()
+                  },
+                  onReset: () => {
+                    resetValue([name])
+                    dropdownRef.current?.close()
+                  }
+                }
+              )
             }
           )
         }
