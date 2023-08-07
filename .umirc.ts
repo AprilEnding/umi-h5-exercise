@@ -12,15 +12,27 @@ export default defineConfig({
   //   hd: true
   // },
   routes: [
-    { 
-      path: '/', 
-      component: '@/pages/index', 
+    {
+      path: '/',
+      component: '@/pages/index',
       redirect: '/list/sell'
     },
     {
       path: '/list/:type',
       component: '@/pages/list/index',
     },
+    {
+      path: '/detail/:id',
+      component: '@/pages/detail'
+    }
   ],
   fastRefresh: {},
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4523',
+        pathRewrite: { '^/api':  '/m1/3116646-0-default' },
+      }
+    }
+  }
 });

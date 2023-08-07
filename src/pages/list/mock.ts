@@ -290,3 +290,12 @@ export const reangeOptions: Option[] = [
     value: [3000, Infinity],
   },
 ]
+
+export const pageData = (new Array(100)).fill(1).map((item, idx) => {
+  return {
+    id: idx,
+    title: 'title' + idx,
+    imgUrl: 'https://images.unsplash.com/photo-1548532928-b34e3be62fc6?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ',
+    desc: 'description description description description description description description description' + idx,
+  }
+})

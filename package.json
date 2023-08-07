@@ -24,11 +24,18 @@
     "antd-mobile": "^5.32.0",
     "react": "17.x",
     "react-dom": "17.x",
-    "umi": "^3.5.41"
+    "react-virtualized": "^9.22.5",
+    "react-virtualized-auto-sizer": "^1.0.20",
+    "react-window": "^1.8.9",
+    "umi": "^3.5.41",
+    "umi-plugin-keep-alive": "^0.0.1-beta.35",
+    "umi-request": "^1.4.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/react-virtualized": "^9.21.22",
+    "@types/react-window": "^1.8.5",
     "@umijs/plugin-antd-mobile": "^1.2.0",
     "@umijs/preset-react": "^1.8.32",
     "@umijs/test": "^3.5.41",

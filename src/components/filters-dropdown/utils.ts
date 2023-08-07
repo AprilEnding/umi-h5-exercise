@@ -47,7 +47,7 @@ export function getValueType(val: any) {
 
 /**
  * todo
- * 支持更多类型？？
+ * 支持更多类型？？,使用toValue???
  */
 
 export function isEmpty(val: any): boolean {

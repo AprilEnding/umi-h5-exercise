@@ -17,7 +17,59 @@
 
     .list-filter-more-main {
       flex: 1 1 auto;
-      overflow: scroll;
+      overflow-y: scroll;
+      margin: 8px;
+      scrollbar-width: none;
+      position: relative;
+
+      &::-webkit-scrollbar{
+        display: none;
+      }
     }
   }
+}
+
+.list-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  .adm-tabs {
+    background-color: #fff;
+  }
+}
+
+.list-item {
+  display: flex;
+  // margin-bottom: 15px;
+  padding: 5px 15px;
+
+  .list-img {
+    margin-right: 8px;
+    flex: 0 0 auto;
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  .content {
+    flex: 1 1 auto;
+    overflow: hidden;
+
+    .desc {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      // width: 100px;
+    }
+  }
+}
+
+.list-wrapper {
+  min-height: 100vh;
+}
+
+.list-main {
+  // min-height: calc(100vh - 91px);
 }
