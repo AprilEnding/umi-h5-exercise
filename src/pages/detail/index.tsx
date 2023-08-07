@@ -1,5 +1,6 @@
 import React from 'react'
-import { useParams} from 'umi'
+import { useParams } from 'umi'
+import { getAreaOptions } from '@/api'
 
 export default function Detail() {
 
@@ -9,7 +10,9 @@ export default function Detail() {
     <div>
       detail: {id}
       <button onClick={() => {
-        fetch('/api/test/login')
+        getAreaOptions().then(res => {
+          console.log('res', res)
+        })
       }}>fetch</button>
     </div>
   )
