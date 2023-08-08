@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { useParams, history, KeepAlive } from 'umi'
 import { Tabs, Selector, InfiniteScroll, CascaderView, Image } from 'antd-mobile'
 import FiltersDropdown, { FiltersDropdownRef } from '@/components/filters-dropdown'
-import { CascaderViewOptions, options, reangeOptions, pageData } from './mock'
+import { options, reangeOptions, pageData } from './mock'
 import RangeSelector from '@/components/range-selector'
 import FilterMore from './components/filter-more'
 import {
@@ -10,6 +10,7 @@ import {
   AutoSizer,
   WindowScroller,
 } from 'react-virtualized'
+import useFiltersOptions from './hooks/useFiltersOptions'
 import './index.less'
 
 enum PageType {
@@ -30,10 +31,7 @@ function List() {
   const { type: pageType } = useParams() as { type: PageType }
   const isSellPage = pageType === PageType.SELL
   const [hasMore, setHasMore] = useState(true)
-  const [pageInfo, setPageInfo] = useState({
-    pageSize: 20,
-    pageNum: 1,
-  })
+  const [pageInfo, setPageInfo] = useState({ pageSize: 20, pageNum: 1, })
   const [pageList, setPageList] = useState([] as any)
   const [filterValue, setFilterValue] = useState({})
 
@@ -43,6 +41,14 @@ function List() {
     filtersDropdownRef.current?.resetValue()
     history.replace('/list/' + key)
   }
+
+  const { 
+    areaOptions, 
+    vegetableOptions,
+    priceRangeOptions,
+    areaRangeOptions,
+    ballOptions,
+  } = useFiltersOptions()
 
   const loadMore = async () => {
     console.log('load more fitler', filterValue)
@@ -112,21 +118,18 @@ function List() {
         >
           <FiltersDropdown.Item key="area" title="区域">
             <CascaderView
-              options={CascaderViewOptions}
-              onChange={(val, extend) => {
-                console.log('onChange', val, extend)
-              }}
+              options={areaOptions}
             />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="vegetable" title="蔬菜">
             <Selector
               columns={3}
-              options={options}
+              options={vegetableOptions}
             />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="price" title="价格">
             <RangeSelector
-              options={reangeOptions}
+              options={priceRangeOptions}
               columns={3}
               multiple
               onChange={(v, extend) => {
@@ -137,7 +140,10 @@ function List() {
             />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="more" title="更多" contentClassName="list-filter-more">
-            <FilterMore></FilterMore>
+            <FilterMore 
+              areaRangeOptions={areaRangeOptions}
+              ballOptions={ballOptions}
+            ></FilterMore>
           </FiltersDropdown.Item>
         </FiltersDropdown>
 

@@ -10,74 +10,26 @@ const sideList = [
     key: 'area',
     title: '面积',
     selector: RangeSelector,
-    options: [
-      {
-        label: '50㎡以下',
-        value: [0, 50],
-      },
-      {
-        label: '50-100㎡',
-        value: [50, 100],
-      },
-      {
-        label: '100-150㎡',
-        value: [100, 150],
-      },
-      {
-        label: '200-250㎡',
-        value: [200, 250],
-      },
-      {
-        label: '250-300㎡',
-        value: [250, 300],
-      },
-      {
-        label: '300-350㎡',
-        value: [300, 350],
-      },
-      {
-        label: '350元以上',
-        value: [350, Infinity],
-      },
-    ],
     props: {
       columns: 3,
       multiple: true,
     },
   },
   {
-    key: 'ball',
-    title: '球类',
+    key: 'likeBall',
+    title: '喜欢的球类',
     selector: Selector,
-    options: [
-      {
-        label: '篮球',
-        value: 'basketball',
-      },
-      {
-        label: '乒乓球',
-        value: 'tableTennis',
-      },
-      {
-        label: '羽毛球',
-        value: 'badminton',
-      },
-      {
-        label: '网球',
-        value: 'tennis',
-      },
-    ],
     props: {
       columns: 3,
     },
   },
   {
-    key: 'key3',
-    title: '选项三',
-  },
-  {
-    key: 'key4',
-    title: '选项四',
+    key: 'unlikeBall',
+    title: '讨厌的球类',
+    selector: Selector,
+    props: {
+      columns: 3,
+    },
   },
 ]
 
@@ -89,16 +41,30 @@ interface IFilterMoreProps {
   value?: V
   onChange?: (v: V) => void
   defaultValue?: V
+  areaRangeOptions: { label: string, value: [number, number] }
+  ballOptions: { label: string, value: string }
 }
 
 export default function FilterMore(props: IFilterMoreProps) {
 
-  const { value: propsValue, onChange: propsOnChange, defaultValue = {} } = props
+  const {
+    value: propsValue,
+    onChange: propsOnChange,
+    defaultValue = {},
+    areaRangeOptions,
+    ballOptions,
+  } = props
 
   const [sideKey, setSideKey] = useState(sideList[0].key)
   const [sideMainDom, setSideMainDom] = useState<HTMLDivElement | null>(null)
   const [sideMainDomRectTop, setSideMainDomRectTop] = useState(0)
   const isClickSideItemRef = useRef(false)
+
+  const optionsMap: { [key: string]: any } = {
+    area: areaRangeOptions,
+    likeBall: ballOptions,
+    unlikeBall: ballOptions,
+  }
 
   const [value, setValue] = usePropsValue({
     value: propsValue,
@@ -107,7 +73,7 @@ export default function FilterMore(props: IFilterMoreProps) {
   })
 
   const handleChangeByKey = useCallback((key: string, val: any) => {
-    setValue((prev) => ({...prev, [key]: val}))
+    setValue((prev) => ({ ...prev, [key]: val }))
   }, [setValue])
 
   const { run: handleScroll } = useThrottleFn(
@@ -174,8 +140,9 @@ export default function FilterMore(props: IFilterMoreProps) {
         setSideMainDomRectTop(ref?.getBoundingClientRect().top ?? 0)
       }}>
         {
-          sideList.map(({ key, selector, props, options, title }) => {
+          sideList.map(({ key, selector, props, title }) => {
             const Selector = selector
+            const options = optionsMap[key]
             return (
               <div
                 id={`anchor-${key}`}

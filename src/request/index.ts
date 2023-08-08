@@ -19,9 +19,10 @@ const codeMessage: { [key: number]: string } = {
   504: '网关超时。'
 }
 
-// 错误处理 响应码非2xx系列
+// 错误处理 响应码非2xx系列 响应拦截器的异常也会触发
 
 function errorHandler(error: ResponseError<any>) {
+  console.log('error handler')
   const { response } = error
   if (response?.status) {
     const errorText = codeMessage[response.status] || response.statusText
@@ -36,10 +37,10 @@ function errorHandler(error: ResponseError<any>) {
       position: 'top',
       maskClickable: false,
     })
-    console.log(error)
   }
-
-  return response
+  // 
+  throw error
+  // return response
 }
 
 // 默认配置
@@ -51,6 +52,7 @@ const request = extend({
 
 // 请求拦截器
 request.interceptors.request.use((url, options) => {
+  console.log('response interceptors')
   const token = localStorage.getItem('authToken')
   return {
     url,
@@ -67,27 +69,68 @@ request.interceptors.request.use((url, options) => {
 })
 
 // 响应拦截器
-request.interceptors.response.use(async (response) => {
-  try {
-    const data = await response.clone().json()
-    console.log('data', data)
-    if (data.responseCode !== '1') {
-      Toast.show({
-        content: '接口报错了！',
-        maskClickable: false,
-      })
-    }
-  } catch (error) {
+// request.interceptors.response.use(async (response) => {
+//   const data = await response.clone().json()
+//   if (data.responseCode !== '1') {
+//     Toast.show({
+//       content: '接口报错了！',
+//       maskClickable: false,
+//     })
+//   }
+//   return response
+// }, {
+//   global: false
+// })
 
+function margeOption<O>(...optionsArray: (O | undefined)[]) {
+  if (optionsArray.length > 0) {
+    let result: O | undefined
+    optionsArray.forEach(item => {
+      if (!!item) {
+        result = Object.assign(result || {}, item)
+      }
+    })
+    return result
   }
-  return response
-}, {
-  global: false
-})
+  return undefined
+}
 
 type Method = 'get' | 'post' | 'delete' | 'put' | 'patch' | 'head' | 'options'
+type EnhancerRequestOptions = {
+  // 是否自动toast提示错误
+  isToastError?: boolean
+  // responseCode !== '1' 时 promise 会 reject
+  isCheckResponseCode?: boolean
+}
 
-const enhancerRequest = (method: Method) => (url: string) => (options?: RequestOptionsInit) => request[method](url, options)
+const initEnhancerRequestOptions: EnhancerRequestOptions = {
+  isToastError: true,
+  isCheckResponseCode: true,
+}
+
+const enhancerRequest = (method: Method) => {
+
+  return (url: string, enhancerRequestOptions: EnhancerRequestOptions = initEnhancerRequestOptions) => {
+
+    return async (options?: RequestOptionsInit & EnhancerRequestOptions) => {
+      const margeOpt = margeOption<RequestOptionsInit & EnhancerRequestOptions>(enhancerRequestOptions, options)
+      const { isToastError, isCheckResponseCode, ...reOptions } = margeOpt || initEnhancerRequestOptions
+      const res = await request[method](url, reOptions)
+      const {responseCode, responseMessage} = res
+      if (isCheckResponseCode && responseCode !== '1') {
+        const resErrorText = responseMessage || '服务器错误！'
+        if (isToastError) {
+          Toast.show({
+            content: resErrorText,
+            maskClickable: false,
+          })
+        }
+        return Promise.reject(resErrorText)
+      }
+      return res
+    }
+  }
+}
 
 export default {
   get: enhancerRequest('get'),
