@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react'
 import { useParams, history, KeepAlive } from 'umi'
 import { Tabs, Selector, InfiniteScroll, CascaderView, Image } from 'antd-mobile'
 import FiltersDropdown, { FiltersDropdownRef } from '@/components/filters-dropdown'
-import { options, reangeOptions, pageData } from './mock'
 import RangeSelector from '@/components/range-selector'
 import FilterMore from './components/filter-more'
 import {
@@ -11,6 +10,8 @@ import {
   WindowScroller,
 } from 'react-virtualized'
 import useFiltersOptions from './hooks/useFiltersOptions'
+import { useRequest } from 'ahooks'
+import { getList } from '@/api'
 import './index.less'
 
 enum PageType {
@@ -36,14 +37,18 @@ function List() {
   const [filterValue, setFilterValue] = useState({})
 
   const filtersDropdownRef = useRef<FiltersDropdownRef>(null)
+  const { runAsync: fetchList } = useRequest(getList, { manual: true })
 
   const handleChangePage = (key: string) => {
     filtersDropdownRef.current?.resetValue()
     history.replace('/list/' + key)
+    setPageList([])
+    setHasMore(true)
+    setPageInfo({ pageSize: 20, pageNum: 1})
   }
 
-  const { 
-    areaOptions, 
+  const {
+    areaOptions,
     vegetableOptions,
     priceRangeOptions,
     areaRangeOptions,
@@ -51,23 +56,26 @@ function List() {
   } = useFiltersOptions()
 
   const loadMore = async () => {
-    console.log('load more fitler', filterValue)
-    console.log('pageInfo', pageInfo)
-    await delay(1500)
     const { pageNum, pageSize } = pageInfo
-    const startIdx = (pageNum - 1) * pageSize
-    const endIdx = startIdx + pageSize
-    setPageList((prev: any) => {
-      if (!!prev?.length) {
-        return [...prev, ...pageData.slice(startIdx, endIdx)]
-      } else {
-        return pageData.slice(startIdx, endIdx)
+    console.log('filterValue', filterValue)
+    const res = await fetchList({
+      data: {
+        pageSize,
+        pageNum,
+        type: pageType,
       }
     })
-    setPageInfo(prev => ({ ...prev, pageNum: pageNum + 1 }))
-    if (pageNum * pageSize >= pageData.length) {
-      setHasMore(false)
+    if (!!res?.data?.items?.length) {
+      setPageList((prev: any) => {
+        if (!!prev?.length) {
+          return [...prev, ...res.data.items]
+        } else {
+          return res.data.items
+        }
+      })
+      setPageInfo(prev => ({ ...prev, pageNum: pageNum + 1 }))
     }
+    setHasMore(!(pageNum * pageSize >= res?.data?.count))
   }
 
   const toDetail = (id: string) => {
@@ -76,11 +84,9 @@ function List() {
 
   const rowRenderer = ({
     index,
-    // key,
     style,
   }: {
     index: number
-    // key: string
     style: React.CSSProperties
   }) => {
     const item = pageList[index]
@@ -88,12 +94,11 @@ function List() {
     return (
       <div className="list-item" onClick={() => toDetail(item.id)} key={item.id} style={style}>
         <div className="list-img">
-          <Image lazy src={item.imgUrl} />
-          {/* <img src={item.imgUrl} alt="封面" /> */}
+          <Image lazy src={item.imageUrl} />
         </div>
         <div className="content">
           <div className="title">{item.title}</div>
-          <div className="desc">{item.desc}</div>
+          <div className="desc">{item.description}</div>
         </div>
       </div>
     )
@@ -140,7 +145,7 @@ function List() {
             />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="more" title="更多" contentClassName="list-filter-more">
-            <FilterMore 
+            <FilterMore
               areaRangeOptions={areaRangeOptions}
               ballOptions={ballOptions}
             ></FilterMore>
