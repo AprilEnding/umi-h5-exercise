@@ -5,7 +5,12 @@ export default defineConfig({
     type: 'none',
   },
   antd: {
-    mobile: false
+    mobile: false,
+  },
+  dva: {
+    immer: { enableES5: true },
+    hmr: true,
+    lazyLoad: true,
   },
   // todo： 高清问题
   // antdMobile:{
@@ -14,25 +19,33 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      component: '@/pages/index',
-      redirect: '/list/sell'
+      component: '@/layouts/index',
+      // redirect: '/list/sell',
+      // exact: true,
+      routes: [
+        {
+          path: '/list/:type',
+          component: '@/pages/list/index',
+          wrappers: ['@/wrappers/authListPage'],
+        },
+        {
+          path: '/detail/:id',
+          component: '@/pages/detail',
+        },
+      ],
     },
     {
-      path: '/list/:type',
-      component: '@/pages/list/index',
+      path: '/no-permission',
+      component: '@/pages/no-permission',
     },
-    {
-      path: '/detail/:id',
-      component: '@/pages/detail'
-    }
   ],
   fastRefresh: {},
   devServer: {
     proxy: {
       '/api': {
         target: 'http://localhost:4523',
-        pathRewrite: { '^/api':  '/m1/3116646-0-default' },
-      }
-    }
-  }
+        pathRewrite: { '^/api': '/m1/3116646-0-default' },
+      },
+    },
+  },
 });

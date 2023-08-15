@@ -1,51 +1,58 @@
-import React, { useState, useRef } from 'react'
-import { useParams, history, KeepAlive } from 'umi'
-import { Tabs, Selector, InfiniteScroll, CascaderView, Image } from 'antd-mobile'
-import FiltersDropdown, { FiltersDropdownRef } from '@/components/filters-dropdown'
-import RangeSelector from '@/components/range-selector'
-import FilterMore from './components/filter-more'
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  useParams,
+  history,
+  KeepAlive,
+  // useAccess,
+} from 'umi';
+import {
+  Tabs,
+  Selector,
+  InfiniteScroll,
+  CascaderView,
+  Image,
+} from 'antd-mobile';
+import FiltersDropdown, {
+  FiltersDropdownRef,
+} from '@/components/filters-dropdown';
+import RangeSelector from '@/components/range-selector';
+import FilterMore from './components/filter-more';
 import {
   List as VirtualizedList,
   AutoSizer,
   WindowScroller,
-} from 'react-virtualized'
-import useFiltersOptions from './hooks/useFiltersOptions'
-import { useRequest } from 'ahooks'
-import { getList } from '@/api'
-import './index.less'
+} from 'react-virtualized';
+import useFiltersOptions from './hooks/useFiltersOptions';
+import { useRequest } from 'ahooks';
+import { getList } from '@/api';
+import './index.less';
 
 enum PageType {
   SELL = 'sell',
   RENT = 'rent',
 }
 
-const delay = (time: number) => {
-  return new Promise((res) => {
-    setTimeout(() => {
-      res(1)
-    }, time)
-  })
-}
-
-
 function List() {
-  const { type: pageType } = useParams() as { type: PageType }
-  const isSellPage = pageType === PageType.SELL
-  const [hasMore, setHasMore] = useState(true)
-  const [pageInfo, setPageInfo] = useState({ pageSize: 20, pageNum: 1, })
-  const [pageList, setPageList] = useState([] as any)
-  const [filterValue, setFilterValue] = useState({})
-
-  const filtersDropdownRef = useRef<FiltersDropdownRef>(null)
-  const { runAsync: fetchList } = useRequest(getList, { manual: true })
+  const { type: pageType } = useParams() as { type: PageType };
+  const isSellPage = pageType === PageType.SELL;
+  const [hasMore, setHasMore] = useState(true);
+  const [pageInfo, setPageInfo] = useState({ pageSize: 20, pageNum: 1 });
+  const [pageList, setPageList] = useState([] as any);
+  const [filterValue, setFilterValue] = useState({});
+  // const access = useAccess()
+  const filtersDropdownRef = useRef<FiltersDropdownRef>(null);
+  const { runAsync: fetchList } = useRequest(getList, { manual: true });
 
   const handleChangePage = (key: string) => {
-    filtersDropdownRef.current?.resetValue()
-    history.replace('/list/' + key)
-    setPageList([])
-    setHasMore(true)
-    setPageInfo({ pageSize: 20, pageNum: 1})
-  }
+    history.replace('/list/' + key);
+  };
+
+  useEffect(() => {
+    filtersDropdownRef.current?.resetValue();
+    setPageList([]);
+    setHasMore(true);
+    setPageInfo({ pageSize: 20, pageNum: 1 });
+  }, [pageType]);
 
   const {
     areaOptions,
@@ -53,46 +60,51 @@ function List() {
     priceRangeOptions,
     areaRangeOptions,
     ballOptions,
-  } = useFiltersOptions()
+  } = useFiltersOptions();
 
   const loadMore = async () => {
-    const { pageNum, pageSize } = pageInfo
-    console.log('filterValue', filterValue)
+    const { pageNum, pageSize } = pageInfo;
+    console.log('filterValue', filterValue);
     const res = await fetchList({
       data: {
         pageSize,
         pageNum,
         type: pageType,
-      }
-    })
+      },
+    });
     if (!!res?.data?.items?.length) {
       setPageList((prev: any) => {
         if (!!prev?.length) {
-          return [...prev, ...res.data.items]
+          return [...prev, ...res.data.items];
         } else {
-          return res.data.items
+          return res.data.items;
         }
-      })
-      setPageInfo(prev => ({ ...prev, pageNum: pageNum + 1 }))
+      });
+      setPageInfo((prev) => ({ ...prev, pageNum: pageNum + 1 }));
     }
-    setHasMore(!(pageNum * pageSize >= res?.data?.count))
-  }
+    setHasMore(!(pageNum * pageSize >= res?.data?.count));
+  };
 
   const toDetail = (id: string) => {
-    history.push('/detail/' + id)
-  }
+    history.push('/detail/' + id);
+  };
 
   const rowRenderer = ({
     index,
     style,
   }: {
-    index: number
-    style: React.CSSProperties
+    index: number;
+    style: React.CSSProperties;
   }) => {
-    const item = pageList[index]
-    if (!item) return null
+    const item = pageList[index];
+    if (!item) return null;
     return (
-      <div className="list-item" onClick={() => toDetail(item.id)} key={item.id} style={style}>
+      <div
+        className="list-item"
+        onClick={() => toDetail(item.id)}
+        key={item.id}
+        style={style}
+      >
         <div className="list-img">
           <Image lazy src={item.imageUrl} />
         </div>
@@ -101,36 +113,31 @@ function List() {
           <div className="desc">{item.description}</div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="list-wrapper">
       <div className="list-header">
         <Tabs activeKey={pageType} onChange={handleChangePage}>
-          <Tabs.Tab title='出售' key={PageType.SELL} />
-          <Tabs.Tab title='出租' key={PageType.RENT} />
+          <Tabs.Tab title="出售" key={PageType.SELL} />
+          <Tabs.Tab title="出租" key={PageType.RENT} />
         </Tabs>
         <FiltersDropdown
           onChange={(val) => {
-            console.log('value', val)
-            setFilterValue(val)
-            setPageInfo({ pageNum: 1, pageSize: 20 })
-            setPageList([])
-            setHasMore(true)
+            console.log('value', val);
+            setFilterValue(val);
+            setPageInfo({ pageNum: 1, pageSize: 20 });
+            setPageList([]);
+            setHasMore(true);
           }}
           ref={filtersDropdownRef}
         >
           <FiltersDropdown.Item key="area" title="区域">
-            <CascaderView
-              options={areaOptions}
-            />
+            <CascaderView options={areaOptions} />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="vegetable" title="蔬菜">
-            <Selector
-              columns={3}
-              options={vegetableOptions}
-            />
+            <Selector columns={3} options={vegetableOptions} />
           </FiltersDropdown.Item>
           <FiltersDropdown.Item key="price" title="价格">
             <RangeSelector
@@ -139,19 +146,21 @@ function List() {
               multiple
               onChange={(v, extend) => {
                 console.log(v, extend);
-
               }}
               inputSuffix="元"
             />
           </FiltersDropdown.Item>
-          <FiltersDropdown.Item key="more" title="更多" contentClassName="list-filter-more">
+          <FiltersDropdown.Item
+            key="more"
+            title="更多"
+            contentClassName="list-filter-more"
+          >
             <FilterMore
               areaRangeOptions={areaRangeOptions}
               ballOptions={ballOptions}
             ></FilterMore>
           </FiltersDropdown.Item>
         </FiltersDropdown>
-
       </div>
       <div className="list-main">
         {!!pageList.length && (
@@ -177,8 +186,8 @@ function List() {
         )}
       </div>
       <InfiniteScroll loadMore={loadMore} hasMore={hasMore} />
-    </div >
-  )
+    </div>
+  );
 }
 
 // 缓存页面
@@ -188,5 +197,5 @@ export default function KeepAliveList() {
     <KeepAlive name="/list">
       <List />
     </KeepAlive>
-  )
+  );
 }
