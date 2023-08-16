@@ -6,6 +6,7 @@ export interface PermissionModelState {
     rentListPage: boolean;
     sellListPage: boolean;
   };
+  isLogin: boolean;
 }
 
 export interface PermissionModelType {
@@ -26,10 +27,14 @@ const PermissionModel: PermissionModelType = {
       rentListPage: false,
       sellListPage: false,
     },
+    isLogin: false,
   },
   reducers: {
     setPagePermission: (state, action) => {
       state.pagePermission = action.payload;
+    },
+    setIsLogin: (state, action) => {
+      state.isLogin = action.payload;
     },
   },
   effects: {
@@ -38,11 +43,18 @@ const PermissionModel: PermissionModelType = {
         params: { userId: action.payload },
       });
       yield put(setPagePermission(res?.data));
+      yield put(setIsLogin(true));
     },
   },
 };
 
 export default PermissionModel;
+
+export const setIsLogin = (isLogin: boolean) => ({
+  type: 'setIsLogin',
+  payload: isLogin,
+});
+
 export const setPagePermission = (permission: { [key: string]: boolean }) => ({
   type: 'setPagePermission',
   payload: permission,
@@ -55,7 +67,6 @@ export const fetchPermission = (userId: string) => ({
 export const selectPagePermission = (state: {
   permission: PermissionModelState;
 }) => {
-  // console.log('state', state)
   return {
     pagePermission: state?.permission?.pagePermission,
     loading: ((state as any)?.loading?.effects || {})[
@@ -63,3 +74,6 @@ export const selectPagePermission = (state: {
     ],
   };
 };
+
+export const selectIsLogin = (state: { permission: PermissionModelState }) =>
+  state?.permission?.isLogin;

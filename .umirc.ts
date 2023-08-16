@@ -12,16 +12,22 @@ export default defineConfig({
     hmr: true,
     lazyLoad: true,
   },
-  // todo： 高清问题
+  // todo： 高清
   // antdMobile:{
   //   hd: true
   // },
   routes: [
     {
+      path: '/login',
+      component: '@/pages/login',
+    },
+    {
+      path: '/no-permission',
+      component: '@/pages/no-permission',
+    },
+    {
       path: '/',
       component: '@/layouts/index',
-      // redirect: '/list/sell',
-      // exact: true,
       routes: [
         {
           path: '/list/:type',
@@ -32,11 +38,12 @@ export default defineConfig({
           path: '/detail/:id',
           component: '@/pages/detail',
         },
+        {
+          path: '/404',
+          component: '@/pages/404',
+          title: '404',
+        },
       ],
-    },
-    {
-      path: '/no-permission',
-      component: '@/pages/no-permission',
     },
   ],
   fastRefresh: {},
